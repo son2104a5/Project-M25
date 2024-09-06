@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": 751937390,
+      "role": "Admin",
+      "name": "Sơn Nguyễn",
+      "email": "sonnguyen21804@gmail.com",
+      "password": "$2a$10$dHSa782bNkZqTT4s/ndCF.6CikRSVVALiiC6dILFNLtHK7NDUTbDS",
+      "status": true,
+      "avatar": "https://firebasestorage.googleapis.com/v0/b/ptit-son.appspot.com/o/images%2Favatar-trang-4.jpg?alt=media&token=42d35db7-47e1-451d-acd1-8ceced065c6f"
+    }
+  ]
+}
