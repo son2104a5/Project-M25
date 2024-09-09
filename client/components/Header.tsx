@@ -1,12 +1,14 @@
+"use client"
 import { faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
 import { faBars, faBell, faGamepad, faHouse, faMagnifyingGlass, faUserGroup, faVideo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Link from 'next/link'
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
 export default function Header() {
+    const pathName = usePathname()
     const [users, setUsers] = useState([])
     const router = useRouter()
     const userHasLogin = JSON.parse(localStorage.getItem('userHasLogin') as string) || undefined;
@@ -22,14 +24,9 @@ export default function Header() {
         setFooterUser(false)
         router.push('/sign-in')
     }
-    useEffect(() => {
-        if (!userHasLogin) {
-            router.push('/sign-in')
-        }
-    }, [])
     return (
         <div>
-            <header className="bg-[#242526] p-2 flex items-center justify-between">
+            <header className="bg-[#242526] p-2 flex items-center justify-between border-b-[1px] border-[#373839]">
                 {/* <!-- Left section: Logo and Search Bar --> */}
                 <div className="flex items-center space-x-4">
                     {/* <!-- Logo --> */}
@@ -48,22 +45,22 @@ export default function Header() {
                 </div>
 
                 {/* <!-- Center section: Navigation Icons --> */}
-                <div className="flex space-x-8">
-                    <FontAwesomeIcon icon={faHouse} className='w-6 text-white' />
-                    <FontAwesomeIcon icon={faVideo} className='w-6 text-white' />
-                    <FontAwesomeIcon icon={faUserGroup} className='w-6 text-white' />
-                    <FontAwesomeIcon icon={faGamepad} className='w-6 text-white' />
+                <div className="flex h-full gap-2 items-center">
+                    <Link href={"/"} className={pathName == '/' ? 'active' : ''}><FontAwesomeIcon icon={faHouse} className='w-[120px] text-2xl text-center text-white hover:bg-[#3a3b3c] hover:rounded pt-3 pb-3' /></Link>
+                    <Link href={"/watch"} className={pathName == '/watch' ? 'active' : ''}><FontAwesomeIcon icon={faVideo} className='w-[120px] text-2xl text-center text-white hover:bg-[#3a3b3c] hover:rounded pt-3 pb-3' /></Link>
+                    <Link href={"/groups"} className={pathName == '/groups' ? 'active' : ''}><FontAwesomeIcon icon={faUserGroup} className='w-[120px] text-2xl text-center text-white hover:bg-[#3a3b3c] hover:rounded pt-3 pb-3' /></Link>
+                    <Link href={"/gaming"} className={pathName == '/gaming' ? 'active' : ''}><FontAwesomeIcon icon={faGamepad} className='w-[120px] text-2xl text-center text-white hover:bg-[#3a3b3c] hover:rounded pt-3 pb-3' /></Link>
                 </div>
 
                 {/* <!-- Right section: Profile and Notifications --> */}
                 <div className="flex items-center space-x-4">
-                    <div className='bg-[#3a3b3c] rounded-full p-3'>
+                    <div className='bg-[#3a3b3c] rounded-full p-3 hover:bg-[#4a4b4d] hover:te'>
                         <FontAwesomeIcon icon={faBars} className='w-4 text-white' />
                     </div>
-                    <div className='bg-[#3a3b3c] rounded-full p-3'>
+                    <div className='bg-[#3a3b3c] rounded-full p-3 hover:bg-[#4a4b4d] hover:te'>
                         <FontAwesomeIcon icon={faFacebookMessenger} className='w-4 text-white' />
                     </div>
-                    <div className='bg-[#3a3b3c] rounded-full p-3'>
+                    <div className='bg-[#3a3b3c] rounded-full p-3 hover:bg-[#4a4b4d] hover:te'>
                         <FontAwesomeIcon icon={faBell} className='w-4 text-white' />
                     </div>
                     <div>

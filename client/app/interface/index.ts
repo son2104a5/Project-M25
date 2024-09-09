@@ -15,7 +15,7 @@ interface User {
 }
 
 interface Post {
-    postId: number,
+    id: number,
     userId: number,
     content: {
         text: string,

@@ -3,6 +3,6 @@
     "json-server": "^1.0.0-beta.2"
   },
   "scripts": {
-    "start": "json-server --w --port 8080 db.json"
+    "start": "json-server --watch --port 8080 db.json"
   }
 }

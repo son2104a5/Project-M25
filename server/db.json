@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "id": 751937390,
+      "id": "751937390",
       "role": "Admin",
       "name": "Sơn Nguyễn",
       "email": "sonnguyen21804@gmail.com",
@@ -9,5 +9,31 @@
       "status": true,
       "avatar": "https://firebasestorage.googleapis.com/v0/b/ptit-son.appspot.com/o/images%2Favatar-trang-4.jpg?alt=media&token=42d35db7-47e1-451d-acd1-8ceced065c6f"
     }
-  ]
+  ],
+  "posts": [
+    {
+      "id": 817062201,
+      "userId": "751937390",
+      "content": {
+        "text": "",
+        "media": [
+          [
+            {
+              "url": "blob:http://localhost:3000/7b4b1488-1aaa-4f2d-a153-504d172b3062",
+              "type": "image"
+            }
+          ]
+        ]
+      },
+      "createdAt": "2024-09-09T04:38:37.793Z",
+      "engagement": {
+        "shares": 0,
+        "reactions": {
+          "like": 0
+        }
+      }
+    }
+  ],
+  "comments": [],
+  "stories": []
 }
