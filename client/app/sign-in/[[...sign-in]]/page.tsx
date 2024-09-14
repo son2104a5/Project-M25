@@ -52,9 +52,9 @@ export default function Page() {
     }
   }
   return (
-    <div className='flex'>
-      <img src="https://firebasestorage.googleapis.com/v0/b/m25-project-cde45.appspot.com/o/bg-sign.png?alt=media&token=88eb49e7-75d0-4b18-83bc-0864c26bff77" className='bg-gradient-to-l from-slate-300 to-slate-600 h-screen w-1/2' />
-      <div className='mt-[110px] ml-[190px]'>
+    <div className='flex bg-slate-200'>
+      <img src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/bg-sign.png?alt=media&token=f90c119c-62bf-4df8-a013-8900f888cd53" className='bg-gradient-to-l from-slate-300 to-slate-600 h-screen w-1/2' />
+      <div className="mt-[100px] ml-[190px] bg-white h-[280px] p-5 rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)]">
         <form className="">
           <strong className="text-3xl">Đăng nhập</strong>
           <div className="mb-[20px] w-[400px] flex justify-between mt-6">

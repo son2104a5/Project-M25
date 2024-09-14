@@ -19,20 +19,23 @@ interface Post {
     userId: number,
     content: {
         text: string,
-        media: [{
-            type: string,
-            url: string
-        }],
+        media: Media[],
     },
-    createdAt: string,
+    createdAt: number,
     status: string
     engagement: {
         shares: number,
+        comments: number,
         reactions: {
             like: number,
         }
     }
 }
+
+type Media = {
+    url: string;
+    type: "image" | "video";
+};
 
 interface Comment {
     id: number,
@@ -41,5 +44,15 @@ interface Comment {
     content: string,
     reactions: string[],
     image: string,
+    createdAt: string
+}
+
+interface Stories {
+    id: number,
+    userId: number,
+    media: [{
+        type: string,
+        url: string
+    }],
     createdAt: string
 }

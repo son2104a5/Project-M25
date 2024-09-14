@@ -1,12 +1,63 @@
 "use client";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Header from "@/components/Header";
-import { faImages, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faComment,
+  faEarthAmericas,
+  faImages,
+  faLock,
+  faPen,
+  faShare,
+  faThumbsUp,
+  faUserGroup,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { storage } from "@/firebase/firebaseConfig";
+import { v4 } from "uuid";
 
 const date = new Date();
+
+function timeSince(timestamp: number) {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+
+  let interval = Math.floor(seconds / 31536000);
+  if (interval > 1) {
+    return `${interval} năm trước`;
+  }
+
+  interval = Math.floor(seconds / 2592000);
+  if (interval > 1) {
+    return `${interval} tháng trước`;
+  }
+
+  interval = Math.floor(seconds / 86400);
+  if (interval > 1) {
+    return `${interval} ngày trước`;
+  }
+
+  interval = Math.floor(seconds / 3600);
+  if (interval > 1) {
+    return `${interval} giờ trước`;
+  }
+
+  interval = Math.floor(seconds / 60);
+  if (interval > 1) {
+    return `${interval} phút trước`;
+  }
+
+  return `${Math.floor(seconds)} giây trước`;
+}
 
 export default function Page() {
   const [content, setContent] = useState("");
@@ -14,8 +65,12 @@ export default function Page() {
   const [visibility, setVisibility] = useState("public");
   const router = useRouter();
   const [stories, setStories] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [openForm, setOpenForm] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [openForm, setOpenForm] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
+  const [mediaURLs, setMediaURLs] = useState<any>([]);
 
   useEffect(() => {
     if (!userHasLogin) {
@@ -23,7 +78,8 @@ export default function Page() {
     }
   }, []);
 
-  const userHasLogin = JSON.parse(localStorage.getItem("userHasLogin") as string) || undefined;
+  const userHasLogin =
+    JSON.parse(localStorage.getItem("userHasLogin") as string) || undefined;
   const isUser: any = users?.find((user: any) => user.email === userHasLogin);
 
   useEffect(() => {
@@ -40,51 +96,136 @@ export default function Page() {
       .catch((err) => console.log(err));
   }, []);
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/posts")
+      .then((res) => setPosts(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/comments")
+      .then((res) => setComments(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  const sortedPosts = [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
   const handleContentChange = (e: any) => setContent(e.target.value);
+
   const handleMediaChange = (e: any) => {
     const files = Array.from(e.target.files);
-    const newMediaFiles = files.map((file: any) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      type: file.type.startsWith("image/") ? "image" : "video",
-    }));
-    setMediaFiles((prevFiles: any) => [...prevFiles, ...newMediaFiles]);
+    const newMediaFiles = files.map((file: any) => {
+      return {
+        file,
+        preview: URL.createObjectURL(file), // Local preview URL
+        type: file.type.startsWith("image/") ? "image" : "video",
+      };
+    });
+    setMediaFiles([...mediaFiles, ...newMediaFiles]);
   };
+
   const handleVisibilityChange = (e: any) => setVisibility(e.target.value);
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    axios.post("http://localhost:8080/posts", {
-      id: Math.floor(Math.random() * 1000000000),
-      userId: isUser?.id,
-      content: {
-        text: content,
-        media: [
-          mediaFiles.map((item: any)=>{
-            return {
-              url: item.preview,
-              type: item.type,
-            }
-          }),
-        ],
-      },
-      createdAt: date.toISOString(),
-      status: mediaFiles?.visibility,
-      engagement: {
-        shares: 0,
-        reactions: {
-          like: 0,
+  const handleSubmit = async (e: any) => {
+    console.log(mediaFiles);
+    
+    if (mediaFiles === null) return;
+  
+    const uploadedMedia = await Promise.all(
+      mediaFiles.map(async (mediaFile: any) => {
+        const mediaRef = ref(
+          storage,
+          `${mediaFile.type}s/${mediaFile.file.name + v4()}`
+        );
+        await uploadBytes(mediaRef, mediaFile.file);
+        const url = await getDownloadURL(mediaRef);
+  
+        return {
+          url: url,
+          type: mediaFile.type,
+        };
+      })
+    );
+  
+    try {
+      const currentTimestamp = Date.now();
+      const newPost = {
+        id: Math.floor(Math.random() * 1000000000),
+        userId: isUser?.id,
+        content: {
+          text: content,
+          media: uploadedMedia,
         },
-      },
-    });
-    setOpenForm(false)
-    setMediaFiles([])
+        createdAt: currentTimestamp,
+        status: visibility,
+        engagement: {
+          shares: 0,
+          comments: 0,
+          reactions: {
+            like: 0,
+          },
+        },
+      };
+  
+      await axios.post("http://localhost:8080/posts", newPost);
+  
+      setPosts((prevPosts: any) => [newPost, ...prevPosts]);
+      setOpenForm(false);
+      setMediaFiles([]);
+      setContent("");
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    }
   };
+  
+
   const removeMedia = (indexToRemove: any) => {
     setMediaFiles(
       mediaFiles.filter((_: any, index: any) => index !== indexToRemove)
     );
   };
+
+  const toggleLike = (id: number) => {
+    // Find the post in the state
+    const post = posts.find((post) => post.id === id);
+    if (!post) return;
+
+    // Check if the post is liked
+    const isPostLiked = likedPosts.includes(id);
+
+    // Update the like count locally
+    const updatedPost = {
+        ...post,
+        engagement: {
+            ...post.engagement,
+            reactions: {
+                ...post.engagement.reactions,
+                like: isPostLiked
+                    ? post.engagement.reactions.like - 1
+                    : post.engagement.reactions.like + 1,
+            },
+        },
+    };
+
+    // Update local state
+    setPosts((prevPosts) =>
+        prevPosts.map((p) => (p.id === id ? updatedPost : p))
+    );
+
+    // Update liked posts state
+    setLikedPosts((prevLikedPosts) =>
+        isPostLiked
+            ? prevLikedPosts.filter((postId) => postId !== id)
+            : [...prevLikedPosts, id]
+    );
+
+    // Send the updated like count to the server
+    axios
+        .put(`http://localhost:8080/posts?id=${id}`, updatedPost)
+        .catch((err) => console.log(err));
+};
 
   return (
     <div>
@@ -93,16 +234,57 @@ export default function Page() {
         className={`flex min-h-screen h-auto bg-[#18191a] text-white justify-between`}
       >
         {/* Sidebar */}
-        <div className="w-1/4"></div>
+        <div className="w-1/4 ml-3 mt-3 sticky top-0">
+          <div className="flex gap-3 w-full bg-[#18191a] p-2 cursor-pointer hover:bg-[#3a3b3c] rounded-md items-center">
+            <img src={isUser?.avatar} width={35} className="rounded-full" />
+            <span>{isUser?.name}</span>
+          </div>
+          <div className="flex gap-3 w-full bg-[#18191a] p-1 cursor-pointer h-[51px] items-center hover:bg-[#3a3b3c] rounded-md">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/friend.png?alt=media&token=7d1bae17-844d-4c1d-be0f-da0cc25c1786"
+              width={40}
+              className="pl-1"
+              alt=""
+            />
+            <span>Bạn bè</span>
+          </div>
+          <div className="flex gap-3 w-full bg-[#18191a] p-1 cursor-pointer h-[51px] items-center hover:bg-[#3a3b3c] rounded-md">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/groups.png?alt=media&token=c8d71350-31de-4bbc-af16-934c0b104c12"
+              alt=""
+              width={40}
+              className="pl-1"
+            />
+            <span>Nhóm</span>
+          </div>
+          <div className="flex gap-3 w-full bg-[#18191a] p-1 cursor-pointer h-[51px] items-center hover:bg-[#3a3b3c] rounded-md">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/video.png?alt=media&token=55931a8b-3026-418f-93c3-a2578c6eb986"
+              alt=""
+              width={40}
+              className="pl-1"
+            />
+            <span>Video</span>
+          </div>
+          <div className="flex gap-3 w-full bg-[#18191a] p-1 cursor-pointer h-[51px] items-center hover:bg-[#3a3b3c] rounded-md">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/market.png?alt=media&token=c44b21fd-0add-4805-8e4f-b5a74a578cea"
+              alt=""
+              width={40}
+              className="pl-1"
+            />
+            <span>Marketplace</span>
+          </div>
+        </div>
 
         {/* Main Content */}
-        <div className="flex flex-col gap-5 w-1/2">
-          <div>
-            <div className="w-[80px] h-[120px] bg text-center bg-blue-400 text-2xl rounded-2xl font-semibold">
+        <div className="flex flex-col gap-5 w-2/5 mt-5">
+          <div className="flex gap-1">
+            <div className="w-[80px] h-[120px] bg text-center bg-blue-400 text-2xl rounded-2xl font-semibold cursor-pointer hover:bg-opacity-80">
               + Thêm story
             </div>
           </div>
-          <div className="w-full bg-[#262626] h-auto p-2 rounded">
+          <div className="w-full bg-[#262626] h-auto p-2 rounded-lg">
             <div className="flex gap-3 items-center">
               <img src={isUser?.avatar} className="w-[50px] rounded-full" />
               <div
@@ -113,12 +295,138 @@ export default function Page() {
               </div>
             </div>
           </div>
+          {sortedPosts?.map((post) => {
+            if (
+              post.status === "public" ||
+              (post.status == "only-me" && post.userId === isUser.id)
+            ) {
+              return (
+                <div key={post.id} className="w-full bg-[#262626] rounded-lg">
+                  <div className="p-5 flex justify-between">
+                    <div className="flex gap-3 items-center">
+                      <img
+                        src={isUser.avatar}
+                        className="w-[50px] h-[50px] rounded-full"
+                      />
+                      <div>
+                        <div className="font-semibold">{isUser.name}</div>
+                        <div className="text-sm text-gray-400">
+                          {timeSince(post.createdAt)} -{" "}
+                          {post.status === "public" ? (
+                            <FontAwesomeIcon icon={faEarthAmericas} />
+                          // ) : post.status === "friends" ? (
+                            // <FontAwesomeIcon icon={faUserGroup} />
+                          ) : post.status === "only-me" ? (
+                            <FontAwesomeIcon icon={faLock} />
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="font-bold cursor-pointer text-[#d2d2d2] w-[40px] h-[40px] text-center rounded-full text-[24px] hover:bg-[#4a4b4d] leading-6">
+                        ...
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pl-5 pb-3">{post.content.text}</div>
+                  <div>
+                    {post.content.media.length > 1 ? (
+                      <Carousel
+                        showThumbs={false}
+                        infiniteLoop
+                        useKeyboardArrows
+                      >
+                        {post.content.media.map((media, index) => (
+                          <div key={index}>
+                            {media.type === "image" ? (
+                              <img
+                                src={media.url}
+                                className="w-full h-auto rounded-lg"
+                              />
+                            ) : (
+                              <video
+                                src={media.url}
+                                controls
+                                className="w-full h-auto rounded-lg"
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </Carousel>
+                    ) : (
+                      post.content.media.map((media, index) => (
+                        <div key={index}>
+                          {media.type === "image" ? (
+                            <img
+                              src={media.url}
+                              className="w-full h-auto rounded-lg"
+                            />
+                          ) : (
+                            <video
+                              src={media.url}
+                              controls
+                              className="w-full h-auto rounded-lg"
+                            />
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between p-3 ml-3 mr-3 border-b border-[#3a3b3c]">
+                    {post.engagement.reactions.like !== 0 ? (
+                      <div className="flex gap-1 items-center">
+                        <img
+                          src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/facebook-reactions.png?alt=media&token=a5093af4-3f1f-4942-a488-2de85a9872ba"
+                          alt=""
+                          width={25}
+                        />{" "}
+                        <p className="text-gray-400">
+                          {post.engagement.reactions.like}
+                        </p>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    {post.engagement.comments !== 0 ? (
+                      <div className="flex gap-1 items-center">
+                        <p className="text-gray-400">
+                          {post.engagement.comments}
+                        </p>
+                        <FontAwesomeIcon
+                          icon={faComment}
+                          className="text-gray-400"
+                        />
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                  <div className="flex pl-3 pr-3 pt-1 pb-1">
+                    <div
+                      className={`p-2 hover:bg-[#575757] w-[35%] text-center rounded-md cursor-pointer text-gray-400`}
+                      onClick={() => toggleLike(post.id)}
+                    >
+                      <FontAwesomeIcon icon={faThumbsUp} /> <span>Thích</span>
+                    </div>
+                    <div className="text-gray-400 p-2 hover:bg-[#575757] w-[35%] text-center rounded-md cursor-pointer">
+                      <FontAwesomeIcon icon={faComment} />{" "}
+                      <span>Bình luận</span>
+                    </div>
+                    <div className="text-gray-400 p-2 hover:bg-[#575757] w-[35%] text-center rounded-md cursor-pointer">
+                      <FontAwesomeIcon icon={faShare} /> <span>Chia sẻ</span>
+                    </div>
+                  </div>
+                  <div className="border-b border-[#3a3b3c] ml-3 mr-3"></div>
+                </div>
+              );
+            }
+          })}
         </div>
 
-        
-
         {/* Right Sidebar */}
-        <div className="w-1/4"></div>
+        <div className="w-1/4 mr-3"></div>
       </div>
 
       {/* Backdrop for Form */}
@@ -163,7 +471,7 @@ export default function Page() {
             </select>
           </div>
           <textarea
-            placeholder="Nguyễn ơi, bạn đang nghĩ gì thế?"
+            placeholder="Bạn đang nghĩ gì thế?"
             value={content}
             onChange={handleContentChange}
             className="w-full border border-[#616161] rounded-lg p-3 resize-none bg-[#3a3b3c]"
@@ -242,7 +550,7 @@ export default function Page() {
               </div>
             )}
             <input
-              type="file"
+              type="file" 
               id="image-upload"
               className="hidden"
               onChange={handleMediaChange}

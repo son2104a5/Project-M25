@@ -54,13 +54,13 @@ export default function Page() {
           email: email,
           password: bcrypt.hashSync(password, 10),
           status: true,
-          banner: '',
+          banner: 'https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/Screenshot%202024-09-10%20231906.png?alt=media&token=65a4c0a2-d5ef-4a54-8f90-9eba454416bb',
           bio: '',
           follows: [],
           friends: [],
           groups: [],
           createAt: new Date().toISOString(),
-          avatar: "https://firebasestorage.googleapis.com/v0/b/ptit-son.appspot.com/o/images%2Favatar-trang-4.jpg?alt=media&token=42d35db7-47e1-451d-acd1-8ceced065c6f"
+          avatar: "https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/avatar-default.png?alt=media&token=55935550-839a-4465-a0ea-9c0bc25ac3db"
         };
         try {
           await axios.post('http://localhost:8080/users', user);
@@ -78,9 +78,9 @@ export default function Page() {
     }
   };
   return (
-    <div className='flex'>
-      <img src="https://firebasestorage.googleapis.com/v0/b/m25-project-cde45.appspot.com/o/bg-sign.png?alt=media&token=88eb49e7-75d0-4b18-83bc-0864c26bff77" className='bg-gradient-to-l from-slate-300 to-slate-600 h-screen w-1/2' />
-      <div className='mt-[80px] ml-[190px]'>
+    <div className='flex bg-slate-200'>
+      <img src="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/bg-sign.png?alt=media&token=f90c119c-62bf-4df8-a013-8900f888cd53" className='bg-gradient-to-l from-slate-300 to-slate-600 h-screen w-1/2' />
+      <div className="mt-[100px] ml-[190px] bg-white h-[350px] p-5 rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)]">
         <form className="">
           <strong className="text-3xl">Đăng ký tài khoản</strong>
           <div className="mt-[30px] mb-[20px] w-[400px] flex justify-between">

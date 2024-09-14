@@ -7,27 +7,53 @@
       "email": "sonnguyen21804@gmail.com",
       "password": "$2a$10$dHSa782bNkZqTT4s/ndCF.6CikRSVVALiiC6dILFNLtHK7NDUTbDS",
       "status": true,
-      "avatar": "https://firebasestorage.googleapis.com/v0/b/ptit-son.appspot.com/o/images%2Favatar-trang-4.jpg?alt=media&token=42d35db7-47e1-451d-acd1-8ceced065c6f"
+      "banner": "https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/Screenshot%202024-09-10%20231906.png?alt=media&token=65a4c0a2-d5ef-4a54-8f90-9eba454416bb",
+      "avatar": "https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/admin-default.png?alt=media&token=4d0c6e77-a312-4cff-b223-afd71b2a4c1f",
+      "follows": [],
+      "friends": [],
+      "bio": ""
     }
   ],
   "posts": [
     {
-      "id": 817062201,
+      "id": 203753186,
       "userId": "751937390",
       "content": {
-        "text": "",
+        "text": "Hello",
         "media": [
-          [
-            {
-              "url": "blob:http://localhost:3000/7b4b1488-1aaa-4f2d-a153-504d172b3062",
-              "type": "image"
-            }
-          ]
+          {
+            "url": "https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/images%2FAnhDoLego_PC.pnga8393899-94a0-4071-abe3-3d9191afb154?alt=media&token=7f9aa5dd-e2e7-44f6-adf6-8c9f4b25fc2b",
+            "type": "image"
+          }
         ]
       },
-      "createdAt": "2024-09-09T04:38:37.793Z",
+      "createdAt": 1726118571532,
+      "status": "public",
       "engagement": {
         "shares": 0,
+        "comments": 0,
+        "reactions": {
+          "like": 0
+        }
+      }
+    },
+    {
+      "id": 8577406,
+      "userId": "751937390",
+      "content": {
+        "text": "Lineup đỉnh kout",
+        "media": [
+          {
+            "url": "https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/videos%2FAn85OpvUKWYPVNPcTlN47-x2pFVGFBcymOEhJe-FaZtg_Eumf5xynZbgGM9VZFkGeqqZ8H6Fv-NdQN5VD64j0w.mp419685034-08c4-4354-832a-aaac9a508d00?alt=media&token=839c8a83-56b9-4b53-a9ea-b554d5754bef",
+            "type": "video"
+          }
+        ]
+      },
+      "createdAt": 1726118692400,
+      "status": "public",
+      "engagement": {
+        "shares": 0,
+        "comments": 0,
         "reactions": {
           "like": 0
         }

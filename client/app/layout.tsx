@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
-        <link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/m25-project-cde45.appspot.com/o/favicon.ico?alt=media&token=5f12f127-d80a-4b16-bcb2-712dbdda0e24" />
+        <link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/project-m2-4c29a.appspot.com/o/favicon.ico?alt=media&token=e97dfbd2-7f9f-4dfe-a910-e27676474b2a" />
       </body>
     </html>
   );
